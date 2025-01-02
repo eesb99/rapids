@@ -1,9 +1,11 @@
 # Configuration Guide
 
 ## Overview
-RAPIDS uses a JSON configuration file to manage settings for API access, output formats, and storage systems.
+RAPIDS uses JSON configuration files to manage settings for APIs, analysis, output formats, and storage systems.
 
-## Configuration File
+## Main Configuration Files
+
+### 1. ArXiv Configuration
 Location: `config/arxiv_config.json`
 
 ```json
@@ -20,12 +22,11 @@ Location: `config/arxiv_config.json`
         "cs.LG",
         "cs.CL",
         "cs.CV",
-        "cs.NE",
         "stat.ML"
     ],
     "output": {
         "base_dir": "output/arxiv_papers",
-        "formats": ["json", "csv", "txt"]
+        "formats": ["json", "csv", "txt", "markdown"]
     },
     "redis": {
         "host": "localhost",
@@ -36,9 +37,40 @@ Location: `config/arxiv_config.json`
 }
 ```
 
+### 2. Analysis Configuration
+Location: `config/analysis_config.json`
+
+```json
+{
+    "openrouter": {
+        "model": "deepseek/deepseek-chat",
+        "max_context_tokens": 32000,
+        "max_input_tokens": 8000,
+        "max_output_tokens": 4000,
+        "temperature": 0.7
+    },
+    "fields": [
+        "AI",
+        "ML",
+        "CV",
+        "NLP",
+        "Robotics"
+    ],
+    "audience_types": {
+        "general": "General audience, minimal technical background",
+        "expert": "Domain experts, technical audience"
+    },
+    "output_formats": {
+        "json": true,
+        "csv": true,
+        "markdown": true
+    }
+}
+```
+
 ## Configuration Sections
 
-### API Settings
+### 1. ArXiv API Settings
 ```json
 "api": {
     "base_url": "http://export.arxiv.org/api/query",
@@ -48,36 +80,34 @@ Location: `config/arxiv_config.json`
     }
 }
 ```
-- `base_url`: arXiv API endpoint
+- `base_url`: ArXiv API endpoint
 - `batch_size`: Papers per request
-- `rate_limit`: API request throttling
+- `rate_limit`: API rate limiting settings
 
-### Categories
+### 2. Paper Categories
 ```json
 "categories": [
     "cs.AI",
     "cs.LG",
     "cs.CL",
     "cs.CV",
-    "cs.NE",
     "stat.ML"
 ]
 ```
-- List of arXiv categories to fetch
-- Used as primary categories in summaries
-- Cross-listed papers are tracked but grouped by primary category
+- List of ArXiv categories to monitor
+- See [ArXiv categories](https://arxiv.org/category_taxonomy) for all options
 
-### Output Settings
+### 3. Output Settings
 ```json
 "output": {
     "base_dir": "output/arxiv_papers",
-    "formats": ["json", "csv", "txt"]
+    "formats": ["json", "csv", "txt", "markdown"]
 }
 ```
-- `base_dir`: Base directory for outputs (relative to project root)
-- `formats`: Output file formats to generate
+- `base_dir`: Output directory for paper data
+- `formats`: Enabled output formats
 
-### Redis Cache Configuration
+### 4. Redis Cache
 ```json
 "redis": {
     "host": "localhost",
@@ -86,10 +116,88 @@ Location: `config/arxiv_config.json`
     "cache_ttl": 86400
 }
 ```
-- `host`: Redis server host
+- `host`: Redis server address
 - `port`: Redis server port
 - `db`: Redis database number
-- `cache_ttl`: Cache time-to-live in seconds
+- `cache_ttl`: Cache lifetime in seconds
+
+### 5. OpenRouter Analysis
+```json
+"openrouter": {
+    "model": "deepseek/deepseek-chat",
+    "max_context_tokens": 32000,
+    "max_input_tokens": 8000,
+    "max_output_tokens": 4000,
+    "temperature": 0.7
+}
+```
+- `model`: Language model to use
+- `max_context_tokens`: Maximum context window
+- `max_input_tokens`: Maximum input size
+- `max_output_tokens`: Maximum response size
+- `temperature`: Response creativity (0.0-1.0)
+
+### 6. Analysis Fields
+```json
+"fields": [
+    "AI",
+    "ML",
+    "CV",
+    "NLP",
+    "Robotics"
+]
+```
+- Available research fields for analysis
+- Used for field-specific insights
+
+### 7. Audience Types
+```json
+"audience_types": {
+    "general": "General audience, minimal technical background",
+    "expert": "Domain experts, technical audience"
+}
+```
+- Target audience levels for analysis
+- Affects technical depth of analysis
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+```plaintext
+# Required
+OPENROUTER_API_KEY=your-api-key-here
+
+# Optional
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your-password  # if using authentication
+```
+
+## Advanced Configuration
+
+### Custom Analysis Prompts
+Location: `config/prompt_config.json`
+
+```json
+{
+    "prompt_template": "Your custom prompt template",
+    "example_output": [...],
+    "field_examples": [...],
+    "audience_types": {...}
+}
+```
+
+### Batch Processing
+```json
+"batch": {
+    "size": 10,
+    "delay": 5,
+    "max_retries": 3
+}
+```
+- `size`: Papers per batch
+- `delay`: Seconds between batches
+- `max_retries`: Retry attempts on failure
 
 ## Output Structure
 

@@ -1,15 +1,16 @@
 # Installation Guide
 
 ## Prerequisites
-- Python 3.8 or higher
+- Python 3.10 or higher
 - Redis server
 - Conda (recommended for environment management)
+- OpenRouter API key
 
 ## Step-by-Step Installation
 
 ### 1. Clone the Repository
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/eesb99/rapids.git
 cd rapids
 ```
 
@@ -20,7 +21,19 @@ conda env create -f environment.yml
 conda activate rapids
 ```
 
-### 3. Redis Installation and Setup
+### 3. Configure API Keys
+1. Get OpenRouter API key:
+   - Sign up at [OpenRouter](https://openrouter.ai/)
+   - Navigate to API Keys section
+   - Create a new API key
+
+2. Set up environment variables:
+```bash
+# Create .env file
+echo "OPENROUTER_API_KEY=your-api-key-here" > .env
+```
+
+### 4. Redis Installation and Setup
 
 #### Windows
 1. Download Redis for Windows:
@@ -28,54 +41,85 @@ conda activate rapids
    - Download the latest MSI installer
    - Run the installer
 
-2. Add Redis to PATH:
-   - Open System Properties (Win + R, type `sysdm.cpl`)
-   - Click "Environment Variables"
-   - Under "System Variables", find and select "Path"
-   - Click "Edit" and add the Redis installation directory (typically `C:\Program Files\Redis`)
-   - Click "OK" to save
-
-3. Verify Redis Installation:
+2. Start Redis Service:
    ```bash
+   # Start Redis service
+   redis-server
+
+   # Verify Redis is running
    redis-cli ping
    # Should respond with "PONG"
    ```
 
-#### Linux/MacOS
+#### Linux
 ```bash
 # For Ubuntu/Debian
+sudo apt-get update
 sudo apt-get install redis-server
 
-# For MacOS
-brew install redis
+# Start Redis service
+sudo systemctl start redis-server
+
+# Enable Redis on startup
+sudo systemctl enable redis-server
 ```
 
-### 4. Start Redis Server
+#### MacOS
 ```bash
-# Windows (if not running as service)
-redis-server
+# Using Homebrew
+brew install redis
 
-# Linux/MacOS
-sudo service redis start  # or
+# Start Redis service
 brew services start redis
 ```
 
-### 5. Configure Redis
-After installation, see the [Configuration Guide](configuration.md#redis-cache-configuration) for:
-- Setting up Redis connection
-- Configuring cache settings
-- Optimizing performance
+### 5. Verify Installation
 
-### 6. Verify Installation
+1. Check Python version:
 ```bash
-# Test Python environment
-python src/main.py --help
+python --version  # Should be 3.10 or higher
+```
 
-# Test Redis connection
-redis-cli ping
+2. Verify Redis connection:
+```bash
+redis-cli ping  # Should return "PONG"
+```
+
+3. Test OpenRouter API:
+```bash
+# Run a test analysis
+python src/main.py test-api
+```
+
+### 6. Common Issues
+
+1. Python Version Mismatch
+```bash
+# If using wrong Python version
+conda activate rapids
+python --version
+```
+
+2. Redis Connection Error
+```bash
+# Check Redis service status on Windows
+sc query Redis
+
+# On Linux/MacOS
+systemctl status redis-server
+```
+
+3. API Key Issues
+```bash
+# Verify .env file
+cat .env
+
+# Test API key
+python src/main.py verify-api
 ```
 
 ## Next Steps
-1. Configure your system using the [Configuration Guide](configuration.md)
-2. Learn how to use the system in the [Usage Guide](usage.md)
-3. Start fetching papers with commands from the [Quick Start Guide](../README.md#quick-start)
+
+1. Review the [Configuration Guide](configuration.md)
+2. Try examples in the [Usage Guide](usage.md)
+3. Set up your preferred categories in `config/arxiv_config.json`

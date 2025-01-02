@@ -1,0 +1,34 @@
+{
+    "prompt_template": "You are analyzing a collection of research papers. Your task is to recommend the top 3 essential papers to read based on their novelty, potential impact, and relevance to [specific field or topic, e.g., reinforcement learning, generative AI, medical imaging, etc.].\nFor each paper, provide:\n\nTitle\nAuthors\nKey Contributions or Novel Ideas (in 2-3 sentences)\nWhy It Is Important (its potential impact or unique insights)\nCitation (include a clickable link if available).\nEnsure the recommendations are clear, concise, and tailored for a [general audience/expert researcher/practitioner].",
+    
+    "example_output": [
+        {
+            "title": "Standard-Deviation-Inspired Regularization for Improving Adversarial Robustness",
+            "authors": "Olukorede Fakorede, Modeste Atsague, Jin Tian",
+            "key_contributions": "Proposes a novel regularization term inspired by standard deviation to improve the adversarial robustness of deep neural networks, achieving enhanced performance against CW and Auto-attack.",
+            "importance": "Introduces a theoretically grounded approach that can complement existing adversarial training methods, potentially improving robustness for practical applications.",
+            "citation": "arXiv:2412.19947v1"
+        },
+        {
+            "title": "HADES: Hardware Accelerated Decoding for Efficient Speculation in Large Language Models",
+            "authors": "Ze Yang, Yihong Jin, Xinhe Xu",
+            "key_contributions": "Develops a hardware-level speculative decoding framework to improve the energy efficiency and performance of large language models (LLMs).",
+            "importance": "Provides a unique perspective on accelerating LLMs through hardware optimization, addressing a critical bottleneck in model deployment.",
+            "citation": "arXiv:2412.19925v1"
+        }
+    ],
+    
+    "field_examples": [
+        "reinforcement learning",
+        "generative AI",
+        "medical imaging",
+        "natural language processing",
+        "computer vision"
+    ],
+    
+    "audience_types": {
+        "general": "general audience",
+        "expert": "expert researcher",
+        "practitioner": "practitioner"
+    }
+}

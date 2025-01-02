@@ -5,178 +5,195 @@ This guide covers the daily usage of RAPIDS. Make sure you've completed the [Ins
 
 ## Basic Commands
 
-### Fetch Papers
+### 1. Fetch Papers
 ```bash
-# Fetch papers for a specific date
+# Fetch today's papers
+python src/main.py fetch
+
+# Fetch specific date
 python src/main.py fetch --date 2024-12-30
 
 # Force fetch (bypass cache)
 python src/main.py fetch --date 2024-12-30 --force
 
-# Fetch with custom batch size
-python src/main.py fetch --date 2024-12-30 --batch-size 50
+# Fetch with custom categories
+python src/main.py fetch --date 2024-12-30 --categories "cs.AI,cs.LG"
 ```
-For configuration options, see [API Settings](configuration.md#api-settings).
 
-After each fetch, RAPIDS automatically generates:
-1. A text summary (`fetch_summary.txt`)
-2. A markdown summary (`fetch_summary.md`)
-
-The summary includes:
-- Total papers in main categories
-- Total papers overall
-- Papers by category
-- Latest papers (up to 5 per category)
-- Cross-listed categories for each paper
-
-### Search Papers
+### 2. Analyze Papers
 ```bash
-# Search by keyword
+# Analyze today's papers
+python src/main.py analyze
+
+# Analyze specific date
+python src/main.py analyze --date 2024-12-30 --field "AI" --audience "general"
+
+# Custom analysis settings
+python src/main.py analyze \
+    --date 2024-12-30 \
+    --field "AI" \
+    --audience "expert" \
+    --categories "cs.AI,cs.LG" \
+    --output-format "json"
+
+# Batch analysis with delay
+python src/main.py analyze --batch-size 10 --delay 5
+```
+
+### 3. Search Papers
+```bash
+# Basic search
 python src/main.py search "machine learning"
 
-# Search with date range
-python src/main.py search "deep learning" --start-date 2024-01-01 --end-date 2024-12-31
+# Advanced search
+python src/main.py search "deep learning" \
+    --start-date 2024-01-01 \
+    --end-date 2024-12-31 \
+    --categories "cs.AI,cs.LG" \
+    --analyzed-only
 ```
-Search uses the SQLite database. See [SQLite Database](configuration.md#sqlite-database) for details.
+
+## Output Files
+
+### 1. Paper Data
+```
+output/arxiv_papers/YYYY-MM-DD/
+├── cs.AI_papers.json     # Raw paper data
+├── cs.AI_papers.csv      # Spreadsheet format
+└── cs.AI_papers.txt      # Human readable
+```
+
+### 2. Analysis Results
+```
+output/arxiv_papers/YYYY-MM-DD/
+├── analysis_all_general.json    # Full analysis results
+├── analysis_summary.md          # Daily summary
+└── analysis_stats.json          # Analysis statistics
+```
 
 ## Storage Systems
 
-### Redis Cache
-- Purpose: Quick access to recent queries
-- Location: In-memory + disk persistence
-- Management:
-  ```bash
-  # Force fresh fetch (bypass cache)
-  python src/main.py fetch --date 2024-12-30 --force
-  
-  # Clear Redis cache
-  redis-cli FLUSHDB
-  ```
-- Configuration: See [Redis Configuration](configuration.md#redis-cache-configuration)
+### 1. Redis Cache
+```bash
+# Clear cache
+python src/main.py cache clear
 
-### SQLite Database
-- Purpose: Permanent paper storage
-- Location: `arxiv_papers.db`
-- Features:
-  - Full-text search
-  - Date range queries
-  - Category filtering
-- See [Configuration Guide](configuration.md#sqlite-database) for details
+# View cache stats
+python src/main.py cache stats
 
-## Output Structure
-
-### Directory Organization
+# Refresh cache
+python src/main.py cache refresh --date 2024-12-30
 ```
-output/arxiv_papers/
-└── 2024-12-30/
-    ├── fetch_summary.txt    # Daily summary in text format
-    ├── fetch_summary.md     # Daily summary in markdown
-    ├── cs.AI_papers.json    # Papers by category
-    ├── cs.AI_papers.csv
-    ├── cs.AI_papers.txt
-    └── ... (other categories)
+
+### 2. SQLite Database
+```bash
+# Compact database
+python src/main.py db compact
+
+# Export database
+python src/main.py db export --format csv
+
+# Verify database
+python src/main.py db verify
 ```
-Configure output directory in [Output Settings](configuration.md#output-settings).
 
-### Summary Format
-1. Text Summary (`fetch_summary.txt`):
-   ```
-   === Fetch Summary ===
-   
-   Date: 2024-12-30
-   Total Papers in Main Categories: 120
-   Total Papers Overall: 150
-   
-   By Main Category:
-     cs.AI: 30 papers
-     cs.LG: 25 papers
-     ...
-   
-   Latest Papers (up to 5 per category):
-   cs.AI:
-     - Paper Title
-       Authors: Author1, Author2, Author3
-       All Categories: cs.AI, cs.LG, stat.ML
-   ```
+## Advanced Usage
 
-2. Markdown Summary (`fetch_summary.md`):
-   - Same information as text summary
-   - Better formatting for GitHub/markdown viewers
-   - Hierarchical headers for better navigation
+### 1. Custom Analysis
+```bash
+# Use custom prompt
+python src/main.py analyze \
+    --date 2024-12-30 \
+    --prompt-file "custom_prompt.txt"
 
-### File Formats
-1. JSON Format (for programmatic use)
-   ```json
-   [
-     {
-       "id": "paper_id",
-       "title": "Paper Title",
-       "authors": ["Author 1", "Author 2"],
-       "abstract": "Paper abstract...",
-       "categories": ["cs.AI", "cs.LG"],
-       "published": "2024-12-30T00:00:00",
-       "pdf_url": "https://arxiv.org/pdf/..."
-     }
-   ]
-   ```
+# Custom output format
+python src/main.py analyze \
+    --date 2024-12-30 \
+    --output-template "custom_template.json"
+```
 
-2. CSV Format (for spreadsheet analysis)
-   - Columns: id, title, authors, abstract, categories, published, pdf_url
-   - Easy to import into Excel, Python pandas, etc.
+### 2. Batch Processing
+```bash
+# Process date range
+python src/main.py analyze-batch \
+    --start-date 2024-12-01 \
+    --end-date 2024-12-31 \
+    --field "AI"
 
-3. TXT Format (for reading)
-   ```
-   Title: Paper Title
-   Authors: Author 1, Author 2
-   Categories: cs.AI, cs.LG
-   Published: 2024-12-30T00:00:00
-   PDF: https://arxiv.org/pdf/...
-   Abstract:
-   Paper abstract...
-   ----------------------------------------
-   ```
+# With error handling
+python src/main.py analyze-batch \
+    --start-date 2024-12-01 \
+    --end-date 2024-12-31 \
+    --max-retries 3 \
+    --continue-on-error
+```
 
-## Best Practices
+### 3. Export Options
+```bash
+# Export as CSV
+python src/main.py analyze \
+    --date 2024-12-30 \
+    --output csv \
+    --output-file "analysis_results.csv"
 
-1. Regular Fetching
-   - Set up daily fetches for latest papers
-   - Use consistent date format (YYYY-MM-DD)
-   - Check summary reports for cross-listed papers
-   - See [API Settings](configuration.md#api-settings) for rate limits
+# Export as Markdown
+python src/main.py analyze \
+    --date 2024-12-30 \
+    --output markdown \
+    --output-file "analysis_report.md"
+```
 
-2. Cache Management
-   - Use `--force` when needed
-   - Monitor Redis memory usage
-   - See [Redis Configuration](configuration.md#redis-cache-configuration)
+## Error Handling
 
-3. Output Management
-   - Review daily summaries
-   - Use appropriate format for your needs:
-     - CSV for data analysis
-     - TXT for reading
-     - JSON for programming
-     - MD for sharing
-   - See [Output Settings](configuration.md#output-settings)
+### 1. API Issues
+```bash
+# Test API connection
+python src/main.py test-api
 
-4. Search Effectively
-   - Use specific keywords
-   - Combine with date ranges
-   - Check multiple categories
-   - See [SQLite Database](configuration.md#sqlite-database)
+# Verify API key
+python src/main.py verify-api
 
-## Troubleshooting
+# Check API limits
+python src/main.py api-status
+```
 
-1. Redis Issues
-   - Check Redis server is running
-   - Verify connection settings
-   - See [Installation Guide](installation.md#3-redis-installation-and-setup)
+### 2. Debug Mode
+```bash
+# Run with debug logging
+python src/main.py analyze --debug
 
-2. Output Issues
-   - Check directory permissions
-   - Verify configuration
-   - See [Configuration Guide](configuration.md#output-settings)
+# Save debug log
+python src/main.py analyze --debug --log-file "debug.log"
+```
+
+### 3. Recovery Options
+```bash
+# Retry failed analyses
+python src/main.py retry-failed --date 2024-12-30
+
+# Export failed items
+python src/main.py export-failed --format json
+```
+
+## Performance Tips
+
+1. **Batch Processing**
+   - Use appropriate batch sizes
+   - Add delays between batches
+   - Monitor memory usage
+
+2. **Cache Management**
+   - Enable Redis caching
+   - Set reasonable TTL
+   - Clear cache periodically
+
+3. **Database Optimization**
+   - Compact regularly
+   - Index frequently searched fields
+   - Export large datasets
 
 ## Next Steps
+
 1. Check the [Configuration Guide](configuration.md) for customization
-2. Review [Installation Guide](installation.md) for setup changes
-3. Start with examples from [Quick Start](../README.md#quick-start)
+2. Review [API Documentation](api.md) for integration
+3. Join our [Community](https://github.com/eesb99/rapids/discussions)
