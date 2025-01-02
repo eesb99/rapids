@@ -36,6 +36,14 @@ arxiv_papers/
 arxiv_papers.db
 arxiv_manager.log
 .env
+output/
 
 # Windsurf specific
 .windsurfrules
+
+# Testing
+tests/
+.coverage
+htmlcov/
+.pytest_cache/
+

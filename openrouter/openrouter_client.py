@@ -32,11 +32,24 @@ class PaperRecommendation(BaseModel):
 class OpenRouterClient:
     """Client for interacting with OpenRouter API."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, 
+                 api_key: Optional[str] = None, 
+                 temperature: float = 0.3,
+                 top_p: float = 0.8,
+                 top_k: int = 40,
+                 presence_penalty: float = 0.0,
+                 frequency_penalty: float = 0.0,
+                 stop_sequences: Optional[List[str]] = None):
         """Initialize the OpenRouter client.
         
         Args:
             api_key: OpenRouter API key. If not provided, loads from OPENROUTER_API_KEY env variable.
+            temperature: Controls randomness in responses (default: 0.4, range: 0.0-2.0)
+            top_p: Nucleus sampling parameter (default: 0.7, range: 0.0-1.0)
+            top_k: Number of tokens to consider for sampling (default: 50)
+            presence_penalty: Penalize new tokens based on presence in text (default: 0.0, range: -2.0-2.0)
+            frequency_penalty: Penalize new tokens based on frequency in text (default: 0.0, range: -2.0-2.0)
+            stop_sequences: List of sequences where the API will stop generating further tokens
         """
         load_dotenv()
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
@@ -61,6 +74,14 @@ class OpenRouterClient:
         
         # Approximate chars per token (for rough estimation)
         self.chars_per_token = 4
+        
+        # Model parameters
+        self.temperature = max(0.0, min(2.0, temperature))
+        self.top_p = max(0.0, min(1.0, top_p))
+        self.top_k = max(1, top_k)
+        self.presence_penalty = max(-2.0, min(2.0, presence_penalty))
+        self.frequency_penalty = max(-2.0, min(2.0, frequency_penalty))
+        self.stop_sequences = stop_sequences or []
 
     def _truncate_content(self, content: str, max_chars: int) -> str:
         """Truncate content to fit within token limits.
@@ -138,7 +159,12 @@ Remember:
                 json={
                     "model": self.model,
                     "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7,
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "top_k": self.top_k,
+                    "presence_penalty": self.presence_penalty,
+                    "frequency_penalty": self.frequency_penalty,
+                    "stop": self.stop_sequences if self.stop_sequences else None,
                     "max_tokens": self.max_output_tokens
                 },
                 timeout=(10, 30)  # (connect timeout, read timeout)

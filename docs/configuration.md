@@ -47,7 +47,12 @@ Location: `config/analysis_config.json`
         "max_context_tokens": 32000,
         "max_input_tokens": 8000,
         "max_output_tokens": 4000,
-        "temperature": 0.7
+        "temperature": 0.3,
+        "top_p": 0.8,
+        "top_k": 40,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "stop_sequences": []
     },
     "fields": [
         "AI",
@@ -128,7 +133,12 @@ Location: `config/analysis_config.json`
     "max_context_tokens": 32000,
     "max_input_tokens": 8000,
     "max_output_tokens": 4000,
-    "temperature": 0.7
+    "temperature": 0.3,
+    "top_p": 0.8,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "stop_sequences": []
 }
 ```
 - `model`: Language model to use
@@ -136,6 +146,11 @@ Location: `config/analysis_config.json`
 - `max_input_tokens`: Maximum input size
 - `max_output_tokens`: Maximum response size
 - `temperature`: Response creativity (0.0-1.0)
+- `top_p`: Nucleus sampling parameter
+- `top_k`: Number of tokens to consider for sampling
+- `presence_penalty`: Token repetition penalty
+- `frequency_penalty`: Word repetition penalty
+- `stop_sequences`: List of strings where generation should stop
 
 ### 6. Analysis Fields
 ```json
@@ -346,3 +361,39 @@ Example: `arxiv:cs.AI:2024-12-30`
 2. Document updates
 3. Test changes
 4. Backup configs
+
+## OpenRouter Parameters
+
+The OpenRouter configuration supports several parameters to control the AI model's behavior:
+
+1. `temperature` (default: 0.3)
+   - Controls randomness in responses
+   - Range: 0.0-2.0
+   - Lower values (0.1-0.4): More focused, deterministic responses
+   - Higher values (0.7-2.0): More creative, diverse responses
+
+2. `top_p` (default: 0.8)
+   - Nucleus sampling parameter
+   - Range: 0.0-1.0
+   - Controls diversity of token selection
+   - Higher values allow more diverse outputs
+
+3. `top_k` (default: 40)
+   - Number of tokens to consider for sampling
+   - Lower values: More focused responses
+   - Higher values: More diverse responses
+
+4. `presence_penalty` (default: 0.0)
+   - Range: -2.0 to 2.0
+   - Positive values discourage token repetition
+   - Negative values allow more repetition
+
+5. `frequency_penalty` (default: 0.0)
+   - Range: -2.0 to 2.0
+   - Positive values reduce word repetition
+   - Negative values allow more repetition
+
+6. `stop_sequences` (default: [])
+   - List of strings where generation should stop
+   - Example: ["END", "STOP", "\n\n"]
+   - Useful for controlling output format

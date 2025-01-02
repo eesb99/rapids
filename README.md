@@ -15,6 +15,7 @@ RAPIDS is a powerful tool designed to fetch, process, and analyze research artic
   - Extraction of key contributions and significance
   - Field-specific relevance assessment
   - Citation generation
+  - Configurable AI parameters (temperature, sampling, penalties)
 
 - **Output Formats**
   - Structured JSON output
